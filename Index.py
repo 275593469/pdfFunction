@@ -2,6 +2,10 @@
 import pdfplumber
 from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
+from flask import Flask, request
+import json
+
+app = Flask(__name__)
 
 # 1. 设置用户属性, 包括 secret_id, secret_key, region等。Appid 已在 CosConfig 中移除，请在参数 Bucket 中带上 Appid。Bucket 由 BucketName-Appid 组成
 secret_id = 'AKID0UvFh3FJJLNOMB076xfL3kP4nVK8sYOM'  # 用户的 SecretId，建议使用子账号密钥，授权遵循最小权限指引，降低使用风险。子账号密钥获取可参见 https://cloud.tencent.com/document/product/598/37140
@@ -76,8 +80,8 @@ def main_handler(event, context):
                    "培养单位",
                    "盲审专家"
                }}
-    bucket = context.get('bucket')
-    fileName = context.get('fileName')
+    bucket = event.get('bucket')
+    fileName = event.get('fileName')
     if (bucket):
         my_dict['bucket'] = bucket
     if (fileName):
@@ -90,7 +94,20 @@ def main_handler(event, context):
         result += item['element'] + ' ' + item['result'] + '\n'
     return result
 
+@app.route('/event-invoke', methods = ['POST'])
+def invoke():
+    # Get all the HTTP headers from the official documentation of Tencent
+    request_id = request.headers.get("X-Scf-Request-Id", "")
+    print("SCF Invoke RequestId: " + request_id)
+
+    event = request.get_data()
+    event_str = event.decode("utf-8")
+    # event_str转成字典
+    json_data = json.loads(event_str)
+    print("event", json_data)
+    result = main_handler(json_data, None)
+    return result
+
 if __name__ == '__main__':
-    result = main_handler(None, {"bucket": "source-1308604211", "fileName": "paper1.pdf"})
-    print(result)
+    app.run(host='0.0.0.0', port=9000)
 
