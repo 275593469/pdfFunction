@@ -1,0 +1,3 @@
+
+cos-python-sdk-v5==1.9.27
+pdfplumber==0.9.0
