@@ -94,7 +94,7 @@ def main_handler(event, context):
         result += item['element'] + ' ' + item['result'] + '\n'
     return result
 
-@app.route('/event-invoke', methods = ['POST'])
+@app.route('/event-invoke', methods = ['POST','GET'])
 def invoke():
     # Get all the HTTP headers from the official documentation of Tencent
     request_id = request.headers.get("X-Scf-Request-Id", "")
