@@ -11,4 +11,4 @@ COPY . /app
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # 在容器内运行应用
-CMD ["python", "app.py"]
+CMD ["python", "Index.py"]
